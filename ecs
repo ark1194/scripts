@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Get list of AWS regions
+regions=$(aws ec2 describe-regions --output json | jq -r '.Regions[].RegionName')
+
+# Loop through each region
+for region in $regions; do
+    echo "Region: $region"
+    
+    # Get list of ECS clusters
+    clusters=$(aws ecs list-clusters --region $region --output json)
+    echo "ECS Clusters:"
+    echo "$clusters"
+    
+    # Loop through each cluster
+    cluster_arns=$(echo "$clusters" | jq -r '.clusterArns[]')
+    for cluster_arn in $cluster_arns; do
+        echo "Cluster ARN: $cluster_arn"
+        
+        # Get services in the cluster
+        services=$(aws ecs list-services --cluster $cluster_arn --region $region --output json)
+        echo "Services in Cluster:"
+        echo "$services"
+        
+        # Get tasks in the cluster
+        tasks=$(aws ecs list-tasks --cluster $cluster_arn --region $region --output json)
+        echo "Tasks in Cluster:"
+        echo "$tasks"
+        
+        # Get task definitions for each task
+        task_arns=$(echo "$tasks" | jq -r '.taskArns[]')
+        for task_arn in $task_arns; do
+            task_definition_arn=$(aws ecs describe-tasks --tasks $task_arn --region $region --output json | jq -r '.tasks[].taskDefinitionArn')
+            echo "Task Definition:"
+            aws ecs describe-task-definition --task-definition $task_definition_arn --region $region --output json
+        done
+        
+        echo "------------------------------------------"
+    done
+    
+    echo "------------------------------------------"
+done
