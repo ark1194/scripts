@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Get a list of AWS regions
+regions=$(aws ec2 describe-regions --query "Regions[].RegionName" --output text)
+
+# Loop through each region
+for region in $regions; do
+    echo "Region: $region"
+
+    # Set the region for subsequent AWS CLI commands
+    export AWS_DEFAULT_REGION=$region
+
+    # Get S3 buckets
+    echo "S3 Buckets:"
+    buckets=$(aws s3api list-buckets --query "Buckets[].Name" --output text)
+
+    # Loop through each bucket
+    for bucket in $buckets; do
+        # Get bucket details
+        bucket_type=$(aws s3api get-bucket-location --bucket "$bucket" --query "LocationConstraint" --output text)
+        encryption=$(aws s3api get-bucket-encryption --bucket "$bucket" --query "ServerSideEncryptionConfiguration.Rules[0].ApplyServerSideEncryptionByDefault.SSEAlgorithm" --output text 2>/dev/null || echo "Not encrypted")
+        bucket_key=$(aws s3api get-bucket-tagging --bucket "$bucket" --query 'TagSet[?Key==`Name`].Value' --output text --region "$region" 2>/dev/null || echo "No bucket key tag found")
+
+        # Print bucket details
+        echo "Bucket Name: $bucket"
+        echo "  Type: $bucket_type"
+        echo "  Encryption: $encryption"
+        echo "  Bucket Key: $bucket_key"
+
+        # Get bucket tags
+        tags=$(aws s3api get-bucket-tagging --bucket "$bucket" --output text --region "$region" 2>/dev/null)
+        if [[ -n "$tags" ]]; then
+            echo "  Tags:"
+            echo "$tags"
+        else
+            echo "  Tags: No tags found"
+        fi
+    done
+done
