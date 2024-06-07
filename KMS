@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if AWS CLI is installed
+if ! command -v aws &> /dev/null; then
+    echo "AWS CLI is not installed. Please install it to use this script."
+    exit 1
+fi
+
+# Get the list of all available AWS regions
+regions=$(aws ec2 describe-regions --query "Regions[*].RegionName" --output text)
+
+# Iterate through each region
+for region in $regions; do
+    echo "Region: $region"
+    echo "==================="
+
+    # Get the list of KMS keys in the region
+    key_ids=$(aws kms list-keys --region $region --query "Keys[*].KeyId" --output text)
+
+    # Iterate through each KMS key ID
+    for key_id in $key_ids; do
+        echo "Key ID: $key_id"
+        
+        # Get the full details of the KMS key
+        key_details=$(aws kms describe-key --region $region --key-id $key_id --output json)
+        
+        # Print the details of the KMS key
+        echo "$key_details"
+        echo "-------------------"
+    done
+    echo ""
+done
