@@ -1,0 +1,63 @@
+Certainly! Here's the updated script that includes fetching complete Internet Gateway details:
+
+```bash
+#!/bin/bash
+
+# Get list of VPC IDs
+vpc_ids=$(aws ec2 describe-vpcs --query 'Vpcs[].VpcId' --output text)
+
+# Iterate through each VPC ID
+for vpc_id in $vpc_ids; do
+    echo "VPC ID: $vpc_id"
+    echo "----------------------"
+    
+    # Get VPC details
+    vpc_details=$(aws ec2 describe-vpcs --vpc-ids $vpc_id)
+
+    # Print VPC details
+    echo "VPC Details:"
+    echo "$vpc_details"
+    
+    # Get subnets associated with the VPC
+    subnets=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$vpc_id" --output json)
+    
+    # Print subnet details
+    echo "Subnets:"
+    echo "$subnets"
+    
+    # Iterate through each subnet
+    subnet_ids=$(echo "$subnets" | jq -r '.Subnets[].SubnetId')
+    for subnet_id in $subnet_ids; do
+        echo "Subnet ID: $subnet_id"
+        subnet_details=$(aws ec2 describe-subnets --subnet-ids $subnet_id)
+        echo "Subnet Details:"
+        echo "$subnet_details"
+        echo ""
+    done
+    
+    # Get internet gateways associated with the VPC
+    internet_gateways=$(aws ec2 describe-internet-gateways --filters "Name=attachment.vpc-id,Values=$vpc_id" --output json)
+    
+    # Print internet gateways
+    echo "Internet Gateways:"
+    echo "$internet_gateways"
+    
+    # Get security groups associated with the VPC
+    security_groups=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$vpc_id" --output json)
+    
+    # Print security groups
+    echo "Security Groups:"
+    echo "$security_groups"
+    
+    # Get route tables associated with the VPC
+    route_tables=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values=$vpc_id" --output json)
+    
+    # Print route tables
+    echo "Route Tables:"
+    echo "$route_tables"
+    
+    echo ""
+done
+```
+
+This script will now also fetch details of Internet Gateways associated with each VPC and print them out.
