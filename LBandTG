@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Get list of AWS regions
+regions=$(aws ec2 describe-regions --output text | cut -f3)
+
+# Loop through each region
+for region in $regions; do
+    echo "Region: $region"
+    
+    # Get list of load balancers
+    load_balancers=$(aws elbv2 describe-load-balancers --region $region --output json)
+    
+    echo "Load Balancers:"
+    echo "$load_balancers"
+    
+    # Get list of target groups
+    target_groups=$(aws elbv2 describe-target-groups --region $region --output json)
+    
+    echo "Target Groups:"
+    echo "$target_groups"
+    
+    echo "------------------------------------------"
+done
