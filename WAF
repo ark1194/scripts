@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Get list of AWS regions
+regions=$(aws ec2 describe-regions --output json | jq -r '.Regions[].RegionName')
+
+# Loop through each region
+for region in $regions; do
+    echo "Region: $region"
+    
+    # Get list of security groups
+    security_groups=$(aws ec2 describe-security-groups --region $region --output json)
+    
+    echo "Security Groups:"
+    echo "$security_groups"
+    
+    echo "------------------------------------------"
+done
