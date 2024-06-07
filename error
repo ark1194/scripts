@@ -1,8 +1,10 @@
-Region: opt-in-not-required
+An error occurred (InvalidParameterException) when calling the DescribeTasks operation: Invalid identifier: cluster identifiers mismatch
+Task Definition:
+To see help text, you can run:
 
-Could not connect to the endpoint URL: "https://elasticloadbalancing.opt-in-not-required.amazonaws.com/"
-Load Balancers:
+  aws help
+  aws <command> help
+  aws <command> <subcommand> help
 
-
-Could not connect to the endpoint URL: "https://elasticloadbalancing.opt-in-not-required.amazonaws.com/"
-Target Groups:
+usage: aws [options] <command> <subcommand> [<subcommand> ...] [parameters]
+aws: error: argument --task-definition: expected one argument
