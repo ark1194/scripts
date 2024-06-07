@@ -28,12 +28,12 @@ for region in $regions; do
         echo "$tasks"
         
         # Get task definitions for each task
-        task_arns=$(echo "$tasks" | jq -r '.taskArns[]')
-        for task_arn in $task_arns; do
-            task_definition_arn=$(aws ecs describe-tasks --tasks $task_arn --region $region --output json | jq -r '.tasks[].taskDefinitionArn')
-            echo "Task Definition:"
-            aws ecs describe-task-definition --task-definition $task_definition_arn --region $region --output json
-        done
+task_arns=$(echo "$tasks" | jq -r '.taskArns[]')
+for task_arn in $task_arns; do
+    task_definition_arn=$(aws ecs describe-tasks --tasks $task_arn --region $region --output json | jq -r '.tasks[].taskDefinitionArn')
+    echo "Task Definition:"
+    aws ecs describe-task-definition --task-definition $task_definition_arn --region $region --output json
+done
         
         echo "------------------------------------------"
     done
